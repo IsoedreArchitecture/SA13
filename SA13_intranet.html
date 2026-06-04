@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SA13 — Intranet CA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --orange:#E8580A;--orange-light:#FDF0EB;--orange-dark:#C04A06;
+  --navy:#1A2B4A;--navy-light:#EEF1F6;
+  --green:#1B5E20;--green-light:#F1F8E9;
+  --amber:#854F0B;--amber-light:#FAEEDA;
+  --red:#A32D2D;--red-light:#FCEBEB;
+  --grey:#5F5E5A;--grey-light:#F5F5F3;--grey-border:#E0DED8;
+  --text:#1A1A1A;--text-muted:#6B6B6B;--text-hint:#9B9B9B;
+  --bg:#F8F7F4;--surface:#FFFFFF;
+  --radius:8px;--radius-lg:12px;
+  --font:'Inter',system-ui,sans-serif;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;min-height:100vh}
+
+/* ── SIDEBAR ── */
+.layout{display:flex;min-height:100vh}
+.sidebar{width:220px;background:var(--navy);display:flex;flex-direction:column;flex-shrink:0}
+.sidebar-logo{padding:20px 16px 16px;border-bottom:1px solid rgba(255,255,255,0.08)}
+.sidebar-logo img{width:48px;height:auto;display:block;margin:0 auto 8px}
+.sidebar-name{color:#fff;font-size:11px;font-weight:500;text-align:center;letter-spacing:.04em;opacity:.7;line-height:1.3}
+.sidebar-name strong{display:block;font-size:13px;opacity:1;font-weight:600;color:#fff}
+nav{padding:12px 0;flex:1}
+.nav-section{font-size:10px;font-weight:600;color:rgba(255,255,255,.35);letter-spacing:.08em;padding:12px 16px 4px;text-transform:uppercase}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 16px;color:rgba(255,255,255,.65);font-size:13px;cursor:pointer;transition:all .15s;border-left:2px solid transparent}
+.nav-item:hover{color:#fff;background:rgba(255,255,255,.06)}
+.nav-item.active{color:#fff;background:rgba(232,88,10,.18);border-left-color:var(--orange)}
+.nav-item i{font-size:16px;flex-shrink:0}
+.sidebar-footer{padding:12px 16px;border-top:1px solid rgba(255,255,255,.08);font-size:11px;color:rgba(255,255,255,.35);text-align:center}
+
+/* ── MAIN ── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{background:var(--surface);border-bottom:1px solid var(--grey-border);padding:0 24px;height:52px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.topbar-title{font-size:15px;font-weight:600;color:var(--text)}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.badge-date{background:var(--orange-light);color:var(--orange-dark);font-size:12px;font-weight:500;padding:4px 10px;border-radius:20px}
+.avatar{width:32px;height:32px;border-radius:50%;background:var(--navy-light);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--navy);cursor:pointer}
+.content{flex:1;overflow-y:auto;padding:24px}
+
+/* ── PAGES (tabs) ── */
+.page{display:none}.page.active{display:block}
+
+/* ── SECTION HEADING ── */
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.section-title{font-size:16px;font-weight:600}
+.section-sub{font-size:13px;color:var(--text-muted);margin-top:1px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:var(--radius);border:1px solid var(--grey-border);background:var(--surface);color:var(--text);font-size:13px;font-weight:500;cursor:pointer;transition:all .15s}
+.btn:hover{background:var(--grey-light)}
+.btn-primary{background:var(--orange);color:#fff;border-color:var(--orange)}
+.btn-primary:hover{background:var(--orange-dark);border-color:var(--orange-dark)}
+
+/* ── STAT CARDS ── */
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.stat-card{background:var(--surface);border:1px solid var(--grey-border);border-radius:var(--radius-lg);padding:16px;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--orange)}
+.stat-label{font-size:12px;color:var(--text-muted);font-weight:500;margin-bottom:4px;display:flex;align-items:center;gap:6px}
+.stat-value{font-size:24px;font-weight:600;color:var(--text);line-height:1}
+.stat-sub{font-size:11px;color:var(--text-hint);margin-top:4px}
+.stat-ok::before{background:var(--green)}
+.stat-warn::before{background:var(--amber)}
+.stat-danger::before{background:var(--red)}
+
+/* ── CARDS ── */
+.card{background:var(--surface);border:1px solid var(--grey-border);border-radius:var(--radius-lg);padding:20px;margin-bottom:16px}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--grey-border)}
+.card-title{font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px}
+.card-title i{color:var(--orange);font-size:16px}
+
+/* ── GRID 2 cols ── */
+.grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+
+/* ── TABLE ── */
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-weight:500;font-size:11px;color:var(--text-muted);padding:8px 12px;border-bottom:1px solid var(--grey-border);letter-spacing:.04em;text-transform:uppercase}
+td{padding:10px 12px;border-bottom:1px solid var(--grey-light);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--grey-light)}
+
+/* ── BADGES ── */
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:3px 8px;border-radius:20px;white-space:nowrap}
+.badge-orange{background:var(--orange-light);color:var(--orange-dark)}
+.badge-green{background:var(--green-light);color:var(--green)}
+.badge-amber{background:var(--amber-light);color:var(--amber)}
+.badge-red{background:var(--red-light);color:var(--red)}
+.badge-navy{background:var(--navy-light);color:var(--navy)}
+.badge-grey{background:var(--grey-light);color:var(--grey)}
+
+/* ── PRÉSENCE WIDGET ── */
+.presence-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.presence-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--grey-border);border-radius:var(--radius);cursor:pointer;transition:all .15s;user-select:none}
+.presence-item:hover{border-color:var(--orange)}
+.presence-item.present{background:var(--green-light);border-color:#C0DD97}
+.presence-item.absent{background:var(--red-light);border-color:#F7C1C1;opacity:.7}
+.presence-item.pouvoir{background:var(--amber-light);border-color:#FAC775}
+.presence-avatar{width:32px;height:32px;border-radius:50%;background:var(--navy-light);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--navy);flex-shrink:0}
+.presence-item.present .presence-avatar{background:#C0DD97;color:var(--green)}
+.presence-item.absent .presence-avatar{background:#F7C1C1;color:var(--red)}
+.presence-item.pouvoir .presence-avatar{background:#FAC775;color:var(--amber)}
+.presence-name{font-size:12px;font-weight:500;line-height:1.2}
+.presence-role{font-size:11px;color:var(--text-muted)}
+.presence-status{margin-left:auto;font-size:16px}
+
+/* ── QUORUM BAR ── */
+.quorum-bar-wrap{margin:16px 0 8px}
+.quorum-bar-bg{height:8px;background:var(--grey-light);border-radius:4px;overflow:hidden}
+.quorum-bar-fill{height:100%;background:var(--orange);border-radius:4px;transition:width .4s}
+.quorum-bar-fill.ok{background:var(--green)}
+.quorum-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted);margin-top:4px}
+
+/* ── PIPELINE ── */
+.pipeline{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px}
+.pipeline-col{min-width:160px;flex:1}
+.pipeline-col-header{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;padding:6px 10px;border-radius:var(--radius) var(--radius) 0 0;margin-bottom:6px}
+.pipeline-card{background:var(--surface);border:1px solid var(--grey-border);border-radius:var(--radius);padding:10px 12px;margin-bottom:6px;font-size:12px;cursor:pointer;transition:all .15s}
+.pipeline-card:hover{border-color:var(--orange);transform:translateY(-1px)}
+.pipeline-card-name{font-weight:600;margin-bottom:4px}
+.pipeline-card-pack{font-size:11px;color:var(--text-muted)}
+
+/* ── TIMELINE ── */
+.timeline{display:flex;flex-direction:column;gap:0}
+.tl-item{display:flex;gap:14px;padding:10px 0;border-bottom:1px solid var(--grey-light)}
+.tl-item:last-child{border-bottom:none}
+.tl-dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px}
+.tl-dot-orange{background:var(--orange-light);color:var(--orange)}
+.tl-dot-green{background:var(--green-light);color:var(--green)}
+.tl-dot-navy{background:var(--navy-light);color:var(--navy)}
+.tl-body{flex:1}
+.tl-date{font-size:11px;color:var(--text-muted);font-weight:500}
+.tl-title{font-size:13px;font-weight:500;margin:1px 0}
+.tl-sub{font-size:12px;color:var(--text-muted)}
+
+/* ── ANNUAIRE ── */
+.annuaire-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.contact-card{background:var(--surface);border:1px solid var(--grey-border);border-radius:var(--radius-lg);padding:14px;display:flex;align-items:center;gap:12px;transition:border-color .15s;cursor:pointer}
+.contact-card:hover{border-color:var(--orange)}
+.contact-avatar{width:40px;height:40px;border-radius:50%;background:var(--navy-light);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--navy);flex-shrink:0}
+.contact-name{font-size:13px;font-weight:600;line-height:1.2}
+.contact-role{font-size:11px;color:var(--text-muted);margin-top:2px}
+
+/* ── ACTION ITEMS ── */
+.action-item{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid var(--grey-light)}
+.action-item:last-child{border-bottom:none}
+.action-check{width:18px;height:18px;border-radius:4px;border:1.5px solid var(--grey-border);cursor:pointer;flex-shrink:0;margin-top:1px;transition:all .15s;display:flex;align-items:center;justify-content:center}
+.action-check.done{background:var(--green);border-color:var(--green);color:#fff}
+.action-check i{font-size:12px}
+.action-body{flex:1}
+.action-title{font-size:13px;font-weight:500}
+.action-title.done-text{text-decoration:line-through;color:var(--text-muted)}
+.action-meta{font-size:11px;color:var(--text-muted);margin-top:2px;display:flex;gap:8px}
+
+/* ── ODJ INPUT ── */
+.odj-list{list-style:none;counter-reset:odj}
+.odj-item{counter-increment:odj;display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--grey-light)}
+.odj-item:last-child{border-bottom:none}
+.odj-item::before{content:counter(odj);width:22px;height:22px;border-radius:50%;background:var(--orange-light);color:var(--orange-dark);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.odj-input{flex:1;border:none;background:transparent;font-size:13px;font-family:var(--font);color:var(--text);outline:none;padding:0}
+.odj-input::placeholder{color:var(--text-hint)}
+.odj-item.active::before{background:var(--orange);color:#fff}
+
+/* ── VOTE WIDGET ── */
+.vote-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.vote-btn{border:1.5px solid var(--grey-border);border-radius:var(--radius);padding:10px;text-align:center;cursor:pointer;transition:all .15s;background:var(--surface)}
+.vote-btn:hover{border-color:var(--orange)}
+.vote-btn.selected-pour{background:var(--green-light);border-color:#97C459}
+.vote-btn.selected-contre{background:var(--red-light);border-color:#F09595}
+.vote-btn.selected-abstention{background:var(--amber-light);border-color:#FAC775}
+.vote-count{font-size:22px;font-weight:600}
+.vote-label{font-size:11px;color:var(--text-muted);font-weight:500}
+
+/* ── responsive ── */
+@media(max-width:860px){
+  .sidebar{width:56px}.sidebar-name,.nav-section,.nav-item span{display:none}
+  .nav-item{justify-content:center;padding:12px}.stat-grid{grid-template-columns:repeat(2,1fr)}
+  .annuaire-grid,.presence-grid{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/Seal_of_the_Architects_Registration_Board.svg/200px-Seal_of_the_Architects_Registration_Board.svg.png" alt="SA13" onerror="this.style.display='none'">
+    <div class="sidebar-name"><strong>SA13</strong>Syndicat des Architectes<br>Bouches-du-Rhône</div>
+  </div>
+  <nav>
+    <div class="nav-section">Principal</div>
+    <div class="nav-item active" onclick="showPage('dashboard')"><i class="ti ti-layout-dashboard"></i><span>Tableau de bord</span></div>
+    <div class="nav-item" onclick="showPage('seance')"><i class="ti ti-users"></i><span>Séance en cours</span></div>
+    <div class="nav-section">Gestion</div>
+    <div class="nav-item" onclick="showPage('partenariats')"><i class="ti ti-building-store"></i><span>Partenariats</span></div>
+    <div class="nav-item" onclick="showPage('actions')"><i class="ti ti-checkbox"></i><span>Décisions & actions</span></div>
+    <div class="nav-section">Réseau</div>
+    <div class="nav-item" onclick="showPage('annuaire')"><i class="ti ti-address-book"></i><span>Annuaire CA</span></div>
+    <div class="nav-item" onclick="showPage('planning')"><i class="ti ti-calendar-event"></i><span>Planning</span></div>
+  </nav>
+  <div class="sidebar-footer">v1.0 — Juin 2026</div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="topbar-title">Tableau de bord</div>
+    <div class="topbar-right">
+      <span class="badge-date" id="today-date"></span>
+      <div class="avatar" title="Clément FORVIEUX">CF</div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ══ PAGE : DASHBOARD ══ -->
+    <div class="page active" id="page-dashboard">
+      <div class="stat-grid">
+        <div class="stat-card stat-ok">
+          <div class="stat-label"><i class="ti ti-calendar" style="font-size:14px" aria-hidden="true"></i>Prochain CA</div>
+          <div class="stat-value" style="font-size:18px;margin-top:4px">13 mai 2026</div>
+          <div class="stat-sub">Dans 9 jours — 12h00, Prado</div>
+        </div>
+        <div class="stat-card" id="stat-adherents">
+          <div class="stat-label"><i class="ti ti-users" style="font-size:14px" aria-hidden="true"></i>Adhérents</div>
+          <div class="stat-value">~100</div>
+          <div class="stat-sub">13 conseillers au CA</div>
+        </div>
+        <div class="stat-card stat-warn">
+          <div class="stat-label"><i class="ti ti-checkbox" style="font-size:14px" aria-hidden="true"></i>Actions en cours</div>
+          <div class="stat-value" id="stat-actions-count">8</div>
+          <div class="stat-sub" id="stat-actions-late">3 en retard</div>
+        </div>
+        <div class="stat-card stat-ok">
+          <div class="stat-label"><i class="ti ti-building-store" style="font-size:14px" aria-hidden="true"></i>Partenariats actifs</div>
+          <div class="stat-value">7</div>
+          <div class="stat-sub">2 renouvellements à venir</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <!-- Prochaines échéances -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><i class="ti ti-clock-exclamation"></i>Actions en attente</div>
+            <span class="badge badge-amber">8 en cours</span>
+          </div>
+          <div id="actions-preview"></div>
+        </div>
+
+        <!-- Prochain CA -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><i class="ti ti-calendar-event"></i>Agenda — 30 jours</div>
+          </div>
+          <div class="timeline" id="agenda-timeline"></div>
+        </div>
+      </div>
+
+      <!-- Partenariats pipeline résumé -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><i class="ti ti-building-store"></i>Pipeline partenariats</div>
+          <button class="btn" onclick="showPage('partenariats')"><i class="ti ti-arrow-right"></i>Voir tout</button>
+        </div>
+        <div class="pipeline" id="pipeline-mini"></div>
+      </div>
+    </div>
+
+    <!-- ══ PAGE : SÉANCE EN COURS ══ -->
+    <div class="page" id="page-seance">
+      <div class="grid-2" style="align-items:start">
+
+        <!-- Présences -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><i class="ti ti-users"></i>Feuille de présence</div>
+            <div style="display:flex;gap:6px">
+              <span class="badge badge-green" id="badge-presents">0 présents</span>
+              <span class="badge badge-red" id="badge-absents">0 absents</span>
+              <span class="badge badge-amber" id="badge-pouvoirs">0 pouvoirs</span>
+            </div>
+          </div>
+          <div class="presence-grid" id="presence-grid"></div>
+          <div class="quorum-bar-wrap">
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px">
+              <span style="font-weight:500">Quorum</span>
+              <span id="quorum-status" style="font-weight:600"></span>
+            </div>
+            <div class="quorum-bar-bg"><div class="quorum-bar-fill" id="quorum-bar" style="width:0%"></div></div>
+            <div class="quorum-labels">
+              <span>0</span>
+              <span id="quorum-label">Requis : —</span>
+              <span>15</span>
+            </div>
+          </div>
+          <div style="display:flex;gap:6px;margin-top:8px;font-size:11px;color:var(--text-muted)">
+            <span style="background:var(--green-light);padding:3px 8px;border-radius:20px;color:var(--green)">Clic = présent</span>
+            <span style="background:var(--amber-light);padding:3px 8px;border-radius:20px;color:var(--amber)">2e clic = pouvoir</span>
+            <span style="background:var(--red-light);padding:3px 8px;border-radius:20px;color:var(--red)">3e clic = absent</span>
+          </div>
+        </div>
+
+        <!-- Ordre du jour + Vote -->
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><i class="ti ti-list-numbers"></i>Ordre du jour</div>
+              <button class="btn" onclick="addOdjItem()"><i class="ti ti-plus"></i>Point</button>
+            </div>
+            <ul class="odj-list" id="odj-list">
+              <li class="odj-item active"><input class="odj-input" placeholder="Validation du CR précédent" value="Validation du CR précédent"></li>
+              <li class="odj-item"><input class="odj-input" placeholder="Point à saisir..."></li>
+              <li class="odj-item"><input class="odj-input" placeholder="Point à saisir..."></li>
+              <li class="odj-item"><input class="odj-input" placeholder="Questions diverses"></li>
+            </ul>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><i class="ti ti-checklist"></i>Vote rapide</div>
+              <span style="font-size:11px;color:var(--text-muted)" id="vote-point-label">Aucun point sélectionné</span>
+            </div>
+            <div class="vote-grid">
+              <div class="vote-btn" id="vote-pour" onclick="vote('pour')">
+                <div class="vote-count" id="vc-pour">0</div>
+                <div class="vote-label">Pour</div>
+              </div>
+              <div class="vote-btn" id="vote-contre" onclick="vote('contre')">
+                <div class="vote-count" id="vc-contre">0</div>
+                <div class="vote-label">Contre</div>
+              </div>
+              <div class="vote-btn" id="vote-abstention" onclick="vote('abstention')">
+                <div class="vote-count" id="vc-abstention">0</div>
+                <div class="vote-label">Abstention</div>
+              </div>
+            </div>
+            <div style="margin-top:10px;display:flex;gap:8px">
+              <button class="btn btn-primary" style="flex:1" onclick="saveVote()"><i class="ti ti-device-floppy"></i>Enregistrer</button>
+              <button class="btn" onclick="resetVote()"><i class="ti ti-refresh"></i>Reset</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Décisions prises en séance -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><i class="ti ti-notes"></i>Décisions & actions de la séance</div>
+          <button class="btn btn-primary" onclick="addAction()"><i class="ti ti-plus"></i>Ajouter</button>
+        </div>
+        <div id="seance-actions"></div>
+      </div>
+    </div>
+
+    <!-- ══ PAGE : PARTENARIATS ══ -->
+    <div class="page" id="page-partenariats">
+      <div class="stat-grid" style="grid-template-columns:repeat(5,1fr)">
+        <div class="stat-card"><div class="stat-label">Prospects</div><div class="stat-value" id="ps-prospect">0</div></div>
+        <div class="stat-card stat-warn"><div class="stat-label">En instruction</div><div class="stat-value" id="ps-instruction">0</div></div>
+        <div class="stat-card"><div class="stat-label">Attente CSP</div><div class="stat-value" id="ps-csp">0</div></div>
+        <div class="stat-card stat-ok"><div class="stat-label">Actifs</div><div class="stat-value" id="ps-actif">0</div></div>
+        <div class="stat-card stat-danger"><div class="stat-label">Renouvellements</div><div class="stat-value" id="ps-renouv">0</div></div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><i class="ti ti-building-store"></i>Pipeline complet</div>
+        </div>
+        <div class="pipeline" id="pipeline-full"></div>
+      </div>
+      <div class="card" style="margin-top:16px">
+        <div class="card-header"><div class="card-title"><i class="ti ti-list-details"></i>Tous les dossiers</div></div>
+        <table>
+          <thead><tr><th>Entreprise</th><th>Pack</th><th>Pôle</th><th>Statut</th><th>Référent</th><th>Renouvellement</th></tr></thead>
+          <tbody id="partenariats-table"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ PAGE : DÉCISIONS & ACTIONS ══ -->
+    <div class="page" id="page-actions">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><i class="ti ti-checkbox"></i>Toutes les actions en cours</div>
+          <div style="display:flex;gap:6px">
+            <select id="filter-resp" onchange="renderActions()" style="font-size:12px;padding:4px 8px;border:1px solid var(--grey-border);border-radius:var(--radius);background:var(--surface)">
+              <option value="">Tous les responsables</option>
+            </select>
+            <select id="filter-status" onchange="renderActions()" style="font-size:12px;padding:4px 8px;border:1px solid var(--grey-border);border-radius:var(--radius);background:var(--surface)">
+              <option value="">Tous les statuts</option>
+              <option value="À faire">À faire</option>
+              <option value="En cours">En cours</option>
+              <option value="Fait">Fait</option>
+            </select>
+          </div>
+        </div>
+        <table>
+          <thead><tr><th>Action</th><th>Séance</th><th>Responsable</th><th>Échéance</th><th>Statut</th></tr></thead>
+          <tbody id="actions-table"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ PAGE : ANNUAIRE ══ -->
+    <div class="page" id="page-annuaire">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><i class="ti ti-address-book"></i>Conseil d'administration SA13 — 2026/2028</div>
+          <span class="badge badge-navy">13 conseillers élus</span>
+        </div>
+        <div class="annuaire-grid" id="annuaire-grid"></div>
+      </div>
+    </div>
+
+    <!-- ══ PAGE : PLANNING ══ -->
+    <div class="page" id="page-planning">
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><i class="ti ti-calendar-event"></i>Événements — Juin/Juillet 2026</div>
+          </div>
+          <div class="timeline" id="planning-timeline"></div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><i class="ti ti-send"></i>Planning communication</div>
+          </div>
+          <table>
+            <thead><tr><th>Date</th><th>Action</th><th>Type</th><th>Statut</th></tr></thead>
+            <tbody id="comm-table"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+</div><!-- /layout -->
+
+<script>
+const MEMBRES = [
+  {nom:"Olivier ARMAND",initiales:"OA",role:"Président"},
+  {nom:"Audrey BECCARIA",initiales:"AB",role:"Vice-Présidente"},
+  {nom:"Éric CHEVALIER",initiales:"EC",role:"Vice-Président"},
+  {nom:"Clément FORVIEUX",initiales:"CF",role:"Secrétaire général"},
+  {nom:"Antoine LALLEMENT",initiales:"AL",role:"Secrétaire adjoint"},
+  {nom:"Odile GRANDE",initiales:"OG",role:"Trésorière"},
+  {nom:"Flavia MAURY",initiales:"FM",role:"Trésorière adjointe"},
+  {nom:"André BATTESTI",initiales:"AB2",role:"Conseiller"},
+  {nom:"Philippe BERBERSARKISSIAN",initiales:"PB",role:"Conseiller"},
+  {nom:"Pierre COULET",initiales:"PC",role:"Conseiller"},
+  {nom:"Louiza FERGANI",initiales:"LF",role:"Conseillère"},
+  {nom:"Marc MONIER",initiales:"MM",role:"Conseiller"},
+  {nom:"Simon PARRILLA",initiales:"SP",role:"Conseiller"},
+  {nom:"Kevin ROCCARO",initiales:"KR",role:"Conseiller"},
+  {nom:"Anaïs",initiales:"AN",role:"Assistante (non-votant)"}
+];
+
+const PARTENARIATS = [
+  {nom:"Je veux une cuisine",pack:"Or",pole:"Pôle 3",statut:"En instruction",referent:"CF",renouv:"—"},
+  {nom:"Bacacier",pack:"Or",pole:"Pôle 3",statut:"Actif",referent:"OA",renouv:"Oct. 2026"},
+  {nom:"Sika",pack:"Argent",pole:"Pôle 3",statut:"Actif",referent:"EC",renouv:"Déc. 2026"},
+  {nom:"Parexlanko",pack:"Argent",pole:"Pôle 3",statut:"Actif",referent:"AB",role:"Conseiller"},
+  {nom:"Wicona",pack:"Or",pole:"Pôle 3",statut:"Actif",referent:"PC",renouv:"Sept. 2026"},
+  {nom:"Epsilon+",pack:"Bronze",pole:"Pôle 3",statut:"Actif",referent:"MM",renouv:"Nov. 2026"},
+  {nom:"Prospect A",pack:"Argent",pole:"Pôle 2",statut:"Prospect",referent:"LF",renouv:"—"},
+  {nom:"Prospect B",pack:"Bronze",pole:"Pôle 4",statut:"Prospect",referent:"SP",renouv:"—"},
+  {nom:"Dossier C",pack:"Or",pole:"Pôle 3",statut:"Attente CSP",referent:"CF",renouv:"—"},
+];
+
+const ACTIONS = [
+  {titre:"Mettre à jour la plaquette partenaires",seance:"CA #09",resp:"Anaïs",echeance:"2026-05-10",statut:"En cours"},
+  {titre:"Rédiger document présentation SA13 pour prestation serment",seance:"CA #09",resp:"Clément FORVIEUX",echeance:"2026-05-13",statut:"À faire"},
+  {titre:"Envoyer save-the-date fête 25 juin",seance:"CA #09",resp:"Anaïs",echeance:"2026-05-07",statut:"Fait"},
+  {titre:"Courrier CNOA – Marseille en Grand",seance:"CA #09",resp:"Olivier ARMAND",echeance:"2026-05-20",statut:"À faire"},
+  {titre:"Estimation coûts soirée 25 juin",seance:"CA #09",resp:"Odile GRANDE",echeance:"2026-05-13",statut:"En cours"},
+  {titre:"Commission cotisations UNSFA",seance:"CA #09",resp:"Philippe BERBERSARKISSIAN",echeance:"2026-05-20",statut:"À faire"},
+  {titre:"Convention partenariat Je veux une cuisine",seance:"CA #09",resp:"Anaïs",echeance:"2026-05-09",statut:"À faire"},
+  {titre:"Tableur adhérents ouverts à collaboration",seance:"CA #09",resp:"Marc MONIER",echeance:"2026-06-01",statut:"À faire"},
+];
+
+const AGENDA = [
+  {date:"13 mai",titre:"CA #10",sub:"12h00 — 130 av. du Prado",type:"ca"},
+  {date:"13 mai",titre:"Commission CSP",sub:"10h00",type:"comm"},
+  {date:"21 mai",titre:"Prestation de serment à l'Ordre",sub:"Olivier prend la parole",type:"event"},
+  {date:"25 juin",titre:"Fête SA13",sub:"Soirée professionnelle + musique",type:"event"},
+];
+
+const PLANNING_COMM = [
+  {date:"07/05",action:"Save-the-date fête 25 juin",type:"Newsletter",statut:"Publié"},
+  {date:"13/05",action:"Présentation SA13 — serment Ordre",type:"Document",statut:"À rédiger"},
+  {date:"20/05",action:"Actualité partenaire Je veux une cuisine",type:"LinkedIn",statut:"En validation"},
+  {date:"01/06",action:"Newsletter mensuelle",type:"Newsletter",statut:"À rédiger"},
+  {date:"20/06",action:"Rappel fête 25 juin",type:"Newsletter",statut:"À rédiger"},
+];
+
+let presenceState = {};
+MEMBRES.forEach(m => presenceState[m.nom] = 'neutre');
+
+let voteState = {pour:0,contre:0,abstention:0};
+let seanceActions = [];
+let currentVotePoint = null;
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  const titles = {dashboard:'Tableau de bord',seance:'Séance en cours',partenariats:'Partenariats',actions:'Décisions & Actions',annuaire:'Annuaire CA',planning:'Planning'};
+  document.getElementById('topbar-title').textContent = titles[id] || id;
+  event && event.currentTarget && event.currentTarget.classList.add('active');
+  const navItems = document.querySelectorAll('.nav-item');
+  navItems.forEach(n => { if(n.getAttribute('onclick')&&n.getAttribute('onclick').includes(id)) n.classList.add('active'); });
+  if(id==='partenariats') renderPartenariats();
+  if(id==='actions') renderActions();
+  if(id==='annuaire') renderAnnuaire();
+  if(id==='planning') renderPlanning();
+}
+
+function initDate() {
+  const d = new Date();
+  const opts = {weekday:'long',day:'numeric',month:'long',year:'numeric'};
+  document.getElementById('today-date').textContent = d.toLocaleDateString('fr-FR',opts);
+}
+
+function initPresence() {
+  const grid = document.getElementById('presence-grid');
+  grid.innerHTML = '';
+  MEMBRES.forEach(m => {
+    const s = presenceState[m.nom];
+    const div = document.createElement('div');
+    div.className = 'presence-item' + (s==='present'?' present':s==='absent'?' absent':s==='pouvoir'?' pouvoir':'');
+    div.onclick = () => togglePresence(m.nom);
+    const icon = s==='present'?'✓':s==='absent'?'✗':s==='pouvoir'?'P':'';
+    div.innerHTML = `<div class="presence-avatar">${m.initiales}</div><div style="flex:1;min-width:0"><div class="presence-name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${m.nom.split(' ')[0]} ${m.nom.split(' ')[1]||''}</div><div class="presence-role">${m.role}</div></div><div class="presence-status">${icon}</div>`;
+    grid.appendChild(div);
+  });
+  updateQuorum();
+}
+
+function togglePresence(nom) {
+  const s = presenceState[nom];
+  if(s==='neutre') presenceState[nom]='present';
+  else if(s==='present') presenceState[nom]='pouvoir';
+  else if(s==='pouvoir') presenceState[nom]='absent';
+  else presenceState[nom]='neutre';
+  initPresence();
+}
+
+function updateQuorum() {
+  const presents = Object.values(presenceState).filter(s=>s==='present').length;
+  const pouvoirs = Object.values(presenceState).filter(s=>s==='pouvoir').length;
+  const absents = Object.values(presenceState).filter(s=>s==='absent').length;
+  const total = presents + pouvoirs;
+  const requis = Math.ceil(15 / 2) + 1;
+  const ok = total >= requis;
+  document.getElementById('badge-presents').textContent = presents + ' présent' + (presents>1?'s':'');
+  document.getElementById('badge-absents').textContent = absents + ' absent' + (absents>1?'s':'');
+  document.getElementById('badge-pouvoirs').textContent = pouvoirs + ' pouvoir' + (pouvoirs>1?'s':'');
+  const bar = document.getElementById('quorum-bar');
+  const pct = Math.min(100, Math.round(total / 15 * 100));
+  bar.style.width = pct + '%';
+  bar.className = 'quorum-bar-fill' + (ok?' ok':'');
+  document.getElementById('quorum-status').textContent = ok ? '✅ Atteint (' + total + '/' + requis + ')' : '❌ Non atteint (' + total + '/' + requis + ')';
+  document.getElementById('quorum-status').style.color = ok ? 'var(--green)' : 'var(--red)';
+  document.getElementById('quorum-label').textContent = 'Requis : ' + requis + ' votants';
+}
+
+function addOdjItem() {
+  const li = document.createElement('li');
+  li.className = 'odj-item';
+  li.innerHTML = '<input class="odj-input" placeholder="Nouveau point...">';
+  document.getElementById('odj-list').appendChild(li);
+}
+
+function vote(type) {
+  voteState[type]++;
+  document.getElementById('vc-pour').textContent = voteState.pour;
+  document.getElementById('vc-contre').textContent = voteState.contre;
+  document.getElementById('vc-abstention').textContent = voteState.abstention;
+  document.getElementById('vote-'+type).className = 'vote-btn selected-'+type;
+  setTimeout(()=>{ document.getElementById('vote-'+type).className = 'vote-btn'; }, 400);
+}
+
+function saveVote() {
+  const points = [...document.querySelectorAll('.odj-input')].map(i=>i.value).filter(v=>v.trim());
+  const pointLabel = points[0] || 'Point en cours';
+  const action = {
+    titre: 'VOTE — ' + pointLabel + ' : Pour ' + voteState.pour + ' / Contre ' + voteState.contre + ' / Abst. ' + voteState.abstention,
+    type: 'vote', date: new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})
+  };
+  seanceActions.unshift(action);
+  renderSeanceActions();
+  resetVote();
+}
+
+function resetVote() {
+  voteState = {pour:0,contre:0,abstention:0};
+  document.getElementById('vc-pour').textContent = '0';
+  document.getElementById('vc-contre').textContent = '0';
+  document.getElementById('vc-abstention').textContent = '0';
+}
+
+function addAction() {
+  const titre = prompt('Intitulé de la décision / action :');
+  if(!titre) return;
+  const resp = prompt('Responsable :','Anaïs');
+  if(!resp) return;
+  seanceActions.unshift({titre, resp, type:'action', date: new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})});
+  renderSeanceActions();
+}
+
+function renderSeanceActions() {
+  const el = document.getElementById('seance-actions');
+  if(!seanceActions.length){ el.innerHTML='<p style="font-size:13px;color:var(--text-muted);padding:12px 0">Aucune décision enregistrée pour cette séance.</p>'; return; }
+  el.innerHTML = seanceActions.map((a,i)=>`
+    <div class="action-item">
+      <div class="tl-dot ${a.type==='vote'?'tl-dot-orange':'tl-dot-navy'}" style="margin-top:0;width:28px;height:28px;flex-shrink:0">
+        <i class="ti ${a.type==='vote'?'ti-checklist':'ti-arrow-right'}" style="font-size:13px"></i>
+      </div>
+      <div class="action-body">
+        <div class="action-title">${a.titre}</div>
+        <div class="action-meta"><span>${a.date}</span>${a.resp?'<span>'+a.resp+'</span>':''}</div>
+      </div>
+    </div>`).join('');
+}
+
+function renderPartenariats() {
+  const statuts = ['Prospect','En instruction','Attente CSP','Actif'];
+  const counts = {};
+  statuts.forEach(s=>counts[s]=0);
+  let renouv = 0;
+  PARTENARIATS.forEach(p=>{if(counts[p.statut]!==undefined)counts[p.statut]++;if(p.renouv&&p.renouv!=='—')renouv++;});
+  document.getElementById('ps-prospect').textContent=counts['Prospect'];
+  document.getElementById('ps-instruction').textContent=counts['En instruction'];
+  document.getElementById('ps-csp').textContent=counts['Attente CSP'];
+  document.getElementById('ps-actif').textContent=counts['Actif'];
+  document.getElementById('ps-renouv').textContent=renouv;
+
+  const colors = {'Prospect':'#EEF1F6','En instruction':'#FAEEDA','Attente CSP':'#FDF0EB','Actif':'#F1F8E9'};
+  const tcolors = {'Prospect':'#1A2B4A','En instruction':'#854F0B','Attente CSP':'#C04A06','Actif':'#1B5E20'};
+  const packBadge = p => p==='Or'?'badge-orange':p==='Argent'?'badge-grey':'badge-navy';
+
+  const full = document.getElementById('pipeline-full');
+  full.innerHTML = '';
+  statuts.forEach(s=>{
+    const col = document.createElement('div');
+    col.className='pipeline-col';
+    const items = PARTENARIATS.filter(p=>p.statut===s);
+    col.innerHTML=`<div class="pipeline-col-header" style="background:${colors[s]};color:${tcolors[s]}">${s} <strong>${items.length}</strong></div>`
+      +items.map(p=>`<div class="pipeline-card"><div class="pipeline-card-name">${p.nom}</div><div class="pipeline-card-pack"><span class="badge ${packBadge(p.pack)}">${p.pack}</span> · ${p.pole}</div></div>`).join('');
+    full.appendChild(col);
+  });
+
+  const mini = document.getElementById('pipeline-mini');
+  mini.innerHTML = '';
+  statuts.forEach(s=>{
+    const col = document.createElement('div');
+    col.className='pipeline-col';
+    const items = PARTENARIATS.filter(p=>p.statut===s);
+    col.innerHTML=`<div class="pipeline-col-header" style="background:${colors[s]};color:${tcolors[s]}">${s} (${items.length})</div>`
+      +items.map(p=>`<div class="pipeline-card"><div class="pipeline-card-name">${p.nom}</div><div class="pipeline-card-pack"><span class="badge ${packBadge(p.pack)}">${p.pack}</span></div></div>`).join('');
+    mini.appendChild(col);
+  });
+
+  const tbody = document.getElementById('partenariats-table');
+  const packBadgeFn = p => p==='Or'?'badge-orange':p==='Argent'?'badge-grey':'badge-navy';
+  const statBadge = s => s==='Actif'?'badge-green':s==='En instruction'?'badge-amber':s==='Prospect'?'badge-grey':'badge-orange';
+  tbody.innerHTML = PARTENARIATS.map(p=>`<tr>
+    <td style="font-weight:500">${p.nom}</td>
+    <td><span class="badge ${packBadgeFn(p.pack)}">${p.pack}</span></td>
+    <td style="color:var(--text-muted)">${p.pole}</td>
+    <td><span class="badge ${statBadge(p.statut)}">${p.statut}</span></td>
+    <td>${p.referent}</td>
+    <td style="color:${p.renouv&&p.renouv!=='—'?'var(--amber)':'var(--text-muted)'}">${p.renouv||'—'}</td>
+  </tr>`).join('');
+}
+
+function renderActions() {
+  const filtResp = document.getElementById('filter-resp').value;
+  const filtStat = document.getElementById('filter-status').value;
+  const resp_set = [...new Set(ACTIONS.map(a=>a.resp))];
+  const sel = document.getElementById('filter-resp');
+  if(sel.options.length===1) resp_set.forEach(r=>{ const o=document.createElement('option');o.value=r;o.textContent=r;sel.appendChild(o); });
+
+  const filtered = ACTIONS.filter(a=>(!filtResp||a.resp===filtResp)&&(!filtStat||a.statut===filtStat));
+  const statBadge = s=>s==='Fait'?'badge-green':s==='En cours'?'badge-amber':'badge-grey';
+  const today = new Date();
+  document.getElementById('actions-table').innerHTML = filtered.map(a=>{
+    const late = a.statut!=='Fait' && new Date(a.echeance)<today;
+    return `<tr>
+      <td style="font-weight:500">${a.titre}${late?'<span class="badge badge-red" style="margin-left:6px">En retard</span>':''}</td>
+      <td style="color:var(--text-muted)">${a.seance}</td>
+      <td>${a.resp}</td>
+      <td style="color:${late?'var(--red)':'var(--text-muted)'}">${a.echeance.split('-').reverse().join('/')}</td>
+      <td><span class="badge ${statBadge(a.statut)}">${a.statut}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderAnnuaire() {
+  document.getElementById('annuaire-grid').innerHTML = MEMBRES.map(m=>`
+    <div class="contact-card">
+      <div class="contact-avatar">${m.initiales}</div>
+      <div>
+        <div class="contact-name">${m.nom}</div>
+        <div class="contact-role">${m.role}</div>
+      </div>
+    </div>`).join('');
+}
+
+function renderPlanning() {
+  const tl = document.getElementById('planning-timeline');
+  const typeIcon = {ca:'ti-users',comm:'ti-git-branch',event:'ti-confetti'};
+  const typeClass = {ca:'tl-dot-orange',comm:'tl-dot-navy',event:'tl-dot-green'};
+  tl.innerHTML = AGENDA.map(e=>`
+    <div class="tl-item">
+      <div class="tl-dot ${typeClass[e.type]}"><i class="ti ${typeIcon[e.type]}" style="font-size:14px"></i></div>
+      <div class="tl-body">
+        <div class="tl-date">${e.date}</div>
+        <div class="tl-title">${e.titre}</div>
+        <div class="tl-sub">${e.sub}</div>
+      </div>
+    </div>`).join('');
+
+  const statBadge = s=>s==='Publié'?'badge-green':s==='En validation'?'badge-amber':'badge-grey';
+  document.getElementById('comm-table').innerHTML = PLANNING_COMM.map(c=>`
+    <tr>
+      <td style="color:var(--text-muted);white-space:nowrap">${c.date}</td>
+      <td style="font-weight:500">${c.action}</td>
+      <td><span class="badge badge-navy">${c.type}</span></td>
+      <td><span class="badge ${statBadge(c.statut)}">${c.statut}</span></td>
+    </tr>`).join('');
+}
+
+function renderDashboard() {
+  const today = new Date();
+  const late = ACTIONS.filter(a=>a.statut!=='Fait'&&new Date(a.echeance)<today).length;
+  const pending = ACTIONS.filter(a=>a.statut!=='Fait').length;
+  document.getElementById('stat-actions-count').textContent = pending;
+  document.getElementById('stat-actions-late').textContent = late + (late>0?' en retard':' en retard');
+
+  const el = document.getElementById('actions-preview');
+  el.innerHTML = ACTIONS.filter(a=>a.statut!=='Fait').slice(0,5).map(a=>{
+    const late = new Date(a.echeance)<today;
+    return `<div class="action-item">
+      <div class="action-check ${a.statut==='Fait'?'done':''}"><i class="ti ti-check" style="font-size:11px"></i></div>
+      <div class="action-body">
+        <div class="action-title ${a.statut==='Fait'?'done-text':''}">${a.titre}</div>
+        <div class="action-meta"><span>${a.resp}</span><span style="color:${late?'var(--red)':'var(--text-muted)'}">${a.echeance.split('-').reverse().join('/')}</span><span class="badge ${a.statut==='Fait'?'badge-green':a.statut==='En cours'?'badge-amber':'badge-grey'}" style="padding:2px 6px">${a.statut}</span></div>
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('agenda-timeline').innerHTML = AGENDA.map(e=>`
+    <div class="tl-item">
+      <div class="tl-dot ${e.type==='ca'?'tl-dot-orange':e.type==='event'?'tl-dot-green':'tl-dot-navy'}"><i class="ti ${e.type==='ca'?'ti-users':e.type==='event'?'ti-confetti':'ti-git-branch'}" style="font-size:13px"></i></div>
+      <div class="tl-body"><div class="tl-date">${e.date}</div><div class="tl-title">${e.titre}</div><div class="tl-sub">${e.sub}</div></div>
+    </div>`).join('');
+
+  renderPartenariats();
+}
+
+initDate();
+initPresence();
+renderSeanceActions();
+renderDashboard();
+</script>
+</body>
+</html>
