@@ -178,15 +178,65 @@ tr:hover td{background:var(--grey-light)}
 .vote-count{font-size:22px;font-weight:600}
 .vote-label{font-size:11px;color:var(--text-muted);font-weight:500}
 
+/* ── ARTEFACTS CARDS ── */
+.artifacts-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.artifact-card{background:var(--surface);border:1px solid var(--grey-border);border-radius:var(--radius-lg);padding:16px;display:flex;flex-direction:column;gap:10px;transition:all .2s;position:relative;overflow:hidden}
+.artifact-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--orange)}
+.artifact-card:hover{border-color:var(--orange);transform:translateY(-2px);box-shadow:0 4px 16px rgba(232,88,10,.12)}
+.artifact-icon{width:40px;height:40px;border-radius:var(--radius);background:var(--orange-light);display:flex;align-items:center;justify-content:center;color:var(--orange-dark)}
+.artifact-icon i{font-size:20px}
+.artifact-title{font-size:14px;font-weight:600;line-height:1.3}
+.artifact-desc{font-size:12px;color:var(--text-muted);line-height:1.5;flex:1}
+.artifact-footer{display:flex;align-items:center;justify-content:space-between;margin-top:4px}
+.artifact-date{font-size:11px;color:var(--text-hint)}
+.artifact-link{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:500;color:var(--orange);text-decoration:none;transition:color .15s}
+.artifact-link:hover{color:var(--orange-dark)}
+.artifact-cat{font-size:10px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.artifact-filter-bar{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.filter-chip{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:500;border:1px solid var(--grey-border);background:var(--surface);color:var(--text-muted);cursor:pointer;transition:all .15s}
+.filter-chip:hover{border-color:var(--orange);color:var(--orange)}
+.filter-chip.active{background:var(--orange);border-color:var(--orange);color:#fff}
+
+/* ── PASSWORD GATE ── */
+#gate{position:fixed;inset:0;z-index:9999;background:var(--navy);display:flex;align-items:center;justify-content:center}
+#gate.hidden{display:none}
+.gate-box{background:var(--surface);border-radius:var(--radius-lg);padding:40px 36px;width:100%;max-width:380px;text-align:center;box-shadow:0 24px 80px rgba(0,0,0,.4)}
+.gate-logo{width:56px;height:56px;border-radius:50%;background:var(--orange);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;color:#fff;font-size:24px;font-weight:700}
+.gate-title{font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px}
+.gate-sub{font-size:13px;color:var(--text-muted);margin-bottom:24px}
+.gate-input{width:100%;padding:10px 14px;border:1.5px solid var(--grey-border);border-radius:var(--radius);font-size:14px;font-family:var(--font);color:var(--text);outline:none;text-align:center;letter-spacing:.1em;transition:border-color .15s;margin-bottom:12px}
+.gate-input:focus{border-color:var(--orange)}
+.gate-input.error{border-color:var(--red);animation:shake .3s ease}
+.gate-err{font-size:12px;color:var(--red);min-height:18px;margin-bottom:8px}
+.gate-btn{width:100%;padding:10px;background:var(--orange);color:#fff;border:none;border-radius:var(--radius);font-size:14px;font-weight:600;cursor:pointer;transition:background .15s;font-family:var(--font)}
+.gate-btn:hover{background:var(--orange-dark)}
+.gate-hint{margin-top:16px;font-size:11px;color:var(--text-hint)}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+
 /* ── responsive ── */
 @media(max-width:860px){
   .sidebar{width:56px}.sidebar-name,.nav-section,.nav-item span{display:none}
   .nav-item{justify-content:center;padding:12px}.stat-grid{grid-template-columns:repeat(2,1fr)}
-  .annuaire-grid,.presence-grid{grid-template-columns:repeat(2,1fr)}
+  .annuaire-grid,.presence-grid,.artifacts-grid{grid-template-columns:repeat(2,1fr)}
 }
+@media(max-width:560px){.artifacts-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
+
+<!-- ══ GATE MOT DE PASSE ══ -->
+<div id="gate">
+  <div class="gate-box">
+    <div class="gate-logo">SA</div>
+    <div class="gate-title">Intranet SA13</div>
+    <div class="gate-sub">Syndicat des Architectes — Bouches-du-Rhône<br>Accès réservé aux membres du Conseil d'Administration</div>
+    <input type="password" id="gate-input" class="gate-input" placeholder="Mot de passe" autocomplete="current-password" onkeydown="if(event.key==='Enter')checkPass()">
+    <div class="gate-err" id="gate-err"></div>
+    <button class="gate-btn" onclick="checkPass()">Accéder</button>
+    <div class="gate-hint">Contactez le secrétariat pour obtenir le mot de passe.</div>
+  </div>
+</div>
+
 <div class="layout">
 
 <!-- SIDEBAR -->
@@ -205,6 +255,8 @@ tr:hover td{background:var(--grey-light)}
     <div class="nav-section">Réseau</div>
     <div class="nav-item" onclick="showPage('annuaire')"><i class="ti ti-address-book"></i><span>Annuaire CA</span></div>
     <div class="nav-item" onclick="showPage('planning')"><i class="ti ti-calendar-event"></i><span>Planning</span></div>
+    <div class="nav-section">Outils</div>
+    <div class="nav-item" onclick="showPage('artefacts')"><i class="ti ti-sparkles"></i><span>Artefacts Claude</span></div>
   </nav>
   <div class="sidebar-footer">v1.0 — Juin 2026</div>
 </div>
@@ -439,6 +491,18 @@ tr:hover td{background:var(--grey-light)}
           </table>
         </div>
       </div>
+    </div>
+
+    <!-- ══ PAGE : ARTEFACTS CLAUDE ══ -->
+    <div class="page" id="page-artefacts">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Artefacts créés avec Claude</div>
+          <div class="section-sub">Applications, documents et outils produits lors des sessions de travail IA</div>
+        </div>
+      </div>
+      <div class="artifact-filter-bar" id="artifact-filters"></div>
+      <div class="artifacts-grid" id="artifacts-grid"></div>
     </div>
 
   </div><!-- /content -->
@@ -768,10 +832,138 @@ function renderDashboard() {
   renderPartenariats();
 }
 
+// ── ARTEFACTS DATA ──
+// Ajoutez vos artefacts Claude ici (titre, desc, date, categorie, icon, lien, statut)
+const ARTIFACTS = [
+  {
+    titre:"Intranet SA13 — Conseil d'Administration",
+    desc:"Application web complète pour la gestion du CA : tableau de bord, feuille de présence & quorum, pipeline partenariats, suivi des actions, annuaire et planning.",
+    date:"Juin 2026",
+    categorie:"Intranet",
+    icon:"ti-layout-dashboard",
+    lien:"SA13_intranet.html",
+    statut:"En ligne"
+  },
+  // Exemple — décommentez et adaptez pour vos autres artefacts :
+  // {
+  //   titre:"Modèle de Convention de Partenariat",
+  //   desc:"Contrat-type pour formaliser les partenariats entre le SA13 et ses partenaires entreprises.",
+  //   date:"Mai 2026",
+  //   categorie:"Document",
+  //   icon:"ti-file-description",
+  //   lien:"https://claude.ai/artifacts/...",
+  //   statut:"Livré"
+  // },
+  // {
+  //   titre:"Plaquette Tarifs Partenariats 2026",
+  //   desc:"Présentation des packs Bronze, Argent et Or avec les avantages et tarifs.",
+  //   date:"Avril 2026",
+  //   categorie:"Présentation",
+  //   icon:"ti-presentation",
+  //   lien:"https://claude.ai/artifacts/...",
+  //   statut:"Livré"
+  // },
+];
+
+const CAT_COLORS = {
+  "Intranet":"badge-orange","Document":"badge-navy","Présentation":"badge-green",
+  "Outil":"badge-amber","Template":"badge-grey","Analyse":"badge-red"
+};
+
+let activeFilter = 'Tous';
+
+function renderArtifacts() {
+  const cats = ['Tous', ...new Set(ARTIFACTS.map(a=>a.categorie))];
+  document.getElementById('artifact-filters').innerHTML = cats.map(c=>
+    `<div class="filter-chip ${c===activeFilter?'active':''}" onclick="filterArtifacts('${c}')">${c}${c==='Tous'?' ('+ARTIFACTS.length+')':' ('+ARTIFACTS.filter(a=>a.categorie===c).length+')'}</div>`
+  ).join('');
+
+  const filtered = activeFilter==='Tous' ? ARTIFACTS : ARTIFACTS.filter(a=>a.categorie===activeFilter);
+  const grid = document.getElementById('artifacts-grid');
+  if(!filtered.length){
+    grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted)"><i class="ti ti-mood-empty" style="font-size:32px;display:block;margin-bottom:8px"></i>Aucun artefact dans cette catégorie.</div>';
+    return;
+  }
+  grid.innerHTML = filtered.map(a=>`
+    <div class="artifact-card">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="artifact-icon"><i class="ti ${a.icon}"></i></div>
+        <span class="badge ${CAT_COLORS[a.categorie]||'badge-grey'} artifact-cat">${a.categorie}</span>
+      </div>
+      <div>
+        <div class="artifact-title">${a.titre}</div>
+        <div class="artifact-desc">${a.desc}</div>
+      </div>
+      <div class="artifact-footer">
+        <span class="artifact-date"><i class="ti ti-clock" style="font-size:11px"></i> ${a.date}</span>
+        <a href="${a.lien}" target="${a.lien.startsWith('http')?'_blank':'_self'}" class="artifact-link">
+          <i class="ti ti-external-link" style="font-size:13px"></i> Ouvrir
+        </a>
+      </div>
+    </div>`).join('');
+}
+
+function filterArtifacts(cat) {
+  activeFilter = cat;
+  renderArtifacts();
+}
+
+// ── AUTHENTIFICATION ──
+// Mot de passe configurable — modifiez cette ligne pour changer le mot de passe
+const INTRANET_PASS = 'SA13@2026';
+// Token URL secret — partagez le lien avec #acces=TOKEN pour un accès sans mot de passe
+const INTRANET_TOKEN = 'sa13-ca-2026';
+const AUTH_KEY = 'sa13_intranet_auth';
+
+function checkPass() {
+  const val = document.getElementById('gate-input').value.trim();
+  if(val === INTRANET_PASS) {
+    sessionStorage.setItem(AUTH_KEY,'1');
+    openIntranet();
+  } else {
+    const inp = document.getElementById('gate-input');
+    inp.classList.add('error');
+    document.getElementById('gate-err').textContent = 'Mot de passe incorrect.';
+    setTimeout(()=>inp.classList.remove('error'),400);
+    inp.value='';
+    inp.focus();
+  }
+}
+
+function openIntranet() {
+  document.getElementById('gate').classList.add('hidden');
+}
+
+function initAuth() {
+  const hash = window.location.hash;
+  const tokenMatch = hash.match(/[#&]acces=([^&]*)/);
+  if(tokenMatch && tokenMatch[1] === INTRANET_TOKEN) {
+    sessionStorage.setItem(AUTH_KEY,'1');
+    history.replaceState(null,'',window.location.pathname);
+    openIntranet();
+    return;
+  }
+  if(sessionStorage.getItem(AUTH_KEY)==='1') {
+    openIntranet();
+    return;
+  }
+  document.getElementById('gate-input').focus();
+}
+
+// ── MISE À JOUR showPage pour inclure artefacts ──
+const _origShowPage = showPage;
+showPage = function(id) {
+  _origShowPage(id);
+  const titles2 = {artefacts:'Artefacts Claude'};
+  if(titles2[id]) document.getElementById('topbar-title').textContent = titles2[id];
+  if(id==='artefacts') renderArtifacts();
+};
+
 initDate();
 initPresence();
 renderSeanceActions();
 renderDashboard();
+initAuth();
 </script>
 </body>
 </html>
