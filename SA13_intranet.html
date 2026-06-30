@@ -599,10 +599,11 @@ textarea.form-input{resize:vertical;min-height:68px;line-height:1.5}
 /* ═══════════════════════════════════════════════════════════
    CONFIG
 ═══════════════════════════════════════════════════════════ */
-const INTRANET_PASS  = 'SA13@2026';   // ← modifiez ici
-const INTRANET_TOKEN = 'sa13-ca-2026'; // ← token pour lien direct (#acces=TOKEN)
-const AUTH_KEY = 'sa13_auth';
-const LS_KEY   = 'sa13_data_v2';
+// var garantit l'accès depuis les handlers onclick inline
+var INTRANET_PASS  = 'SA13@2026';   // ← modifiez ici
+var INTRANET_TOKEN = 'sa13-ca-2026'; // ← token pour lien direct (#acces=TOKEN)
+var AUTH_KEY = 'sa13_auth';
+var LS_KEY   = 'sa13_data_v2';
 
 /* ═══════════════════════════════════════════════════════════
    DEFAULT DATA
@@ -1205,36 +1206,57 @@ function renderDashboard() {
    AUTH
 ═══════════════════════════════════════════════════════════ */
 function checkPass() {
-  const val=document.getElementById('gate-input').value;
-  if(val===INTRANET_PASS){ sessionStorage.setItem(AUTH_KEY,'1'); openIntranet(); }
-  else {
-    const inp=document.getElementById('gate-input');
-    inp.classList.add('error');
-    document.getElementById('gate-err').textContent='Mot de passe incorrect.';
-    setTimeout(()=>inp.classList.remove('error'),400);
-    inp.value=''; inp.focus();
+  try {
+    var inp = document.getElementById('gate-input');
+    var val = inp.value.trim();
+    if(val === INTRANET_PASS) {
+      try { sessionStorage.setItem(AUTH_KEY,'1'); } catch(e){}
+      openIntranet();
+    } else {
+      inp.classList.add('error');
+      document.getElementById('gate-err').textContent = val === '' ? 'Veuillez saisir le mot de passe.' : 'Mot de passe incorrect.';
+      setTimeout(function(){ inp.classList.remove('error'); }, 400);
+      inp.value = '';
+      inp.focus();
+    }
+  } catch(e) {
+    alert('Erreur : ' + e.message);
   }
 }
-function openIntranet(){ document.getElementById('gate').classList.add('hidden'); }
+function openIntranet() {
+  document.getElementById('gate').style.display = 'none';
+}
 function initAuth() {
-  const hash=window.location.hash;
-  const m=hash.match(/[#&]acces=([^&]+)/);
-  if(m && m[1]===INTRANET_TOKEN){ sessionStorage.setItem(AUTH_KEY,'1'); history.replaceState(null,'',location.pathname); openIntranet(); return; }
-  if(sessionStorage.getItem(AUTH_KEY)==='1'){ openIntranet(); return; }
-  document.getElementById('gate-input').focus();
+  try {
+    var hash = window.location.hash;
+    var m = hash.match(/[#&]acces=([^&]+)/);
+    if(m && m[1] === INTRANET_TOKEN) {
+      try { sessionStorage.setItem(AUTH_KEY,'1'); history.replaceState(null,'',location.pathname); } catch(e){}
+      openIntranet(); return;
+    }
+    try { if(sessionStorage.getItem(AUTH_KEY)==='1'){ openIntranet(); return; } } catch(e){}
+  } catch(e){}
+  var inp = document.getElementById('gate-input');
+  if(inp) inp.focus();
 }
 
 /* ═══════════════════════════════════════════════════════════
    INIT
 ═══════════════════════════════════════════════════════════ */
-loadData();
-document.getElementById('today-date').textContent=new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-initOdj();
-initPresence();
-renderSeanceActions();
-renderDashboard();
+// Auth en premier : le reste peut planter sans bloquer le gate
 initAuth();
-document.getElementById('save-dot').className='saved';
+
+try {
+  loadData();
+  document.getElementById('today-date').textContent=new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  initOdj();
+  initPresence();
+  renderSeanceActions();
+  renderDashboard();
+  document.getElementById('save-dot').className='saved';
+} catch(e) {
+  console.error('Init error:', e);
+}
 </script>
 </body>
 </html>
