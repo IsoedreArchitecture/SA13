@@ -257,21 +257,6 @@ td[contenteditable='true']{outline:2px solid var(--orange);outline-offset:-1px;b
 select.form-input{cursor:pointer}
 textarea.form-input{resize:vertical;min-height:68px;line-height:1.5}
 
-/* ── GATE ── */
-#gate{position:fixed;inset:0;z-index:9999;background:linear-gradient(135deg,#0D1B35 0%,var(--navy) 100%);display:flex;align-items:center;justify-content:center;padding:20px}
-#gate.hidden{display:none}
-.gate-box{background:var(--surface);border-radius:var(--radius-xl);padding:40px 36px;width:100%;max-width:355px;text-align:center;box-shadow:0 32px 80px rgba(0,0,0,.5)}
-.gate-logo{width:54px;height:54px;border-radius:14px;background:var(--orange);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;color:#fff;font-size:19px;font-weight:700;box-shadow:0 8px 24px rgba(232,88,10,.45)}
-.gate-title{font-size:20px;font-weight:700;letter-spacing:-.01em;margin-bottom:4px}
-.gate-sub{font-size:12px;color:var(--text-muted);line-height:1.6;margin-bottom:26px}
-.gate-input{width:100%;padding:10px 14px;border:1.5px solid var(--grey-border);border-radius:var(--radius);font-size:15px;font-family:var(--font);color:var(--text);outline:none;text-align:center;letter-spacing:.2em;transition:all .15s;margin-bottom:12px;background:var(--bg)}
-.gate-input:focus{border-color:var(--orange);background:var(--surface);box-shadow:0 0 0 3px rgba(232,88,10,.1)}
-.gate-input.error{border-color:var(--red);animation:shake .35s ease}
-.gate-err{font-size:12px;color:var(--red);min-height:16px;margin-bottom:10px}
-.gate-btn{width:100%;padding:11px;background:var(--orange);color:#fff;border:none;border-radius:var(--radius);font-size:14px;font-weight:600;cursor:pointer;transition:all .15s;font-family:var(--font)}
-.gate-btn:hover{background:var(--orange-dark);transform:translateY(-1px);box-shadow:0 4px 16px rgba(232,88,10,.4)}
-.gate-btn:active{transform:translateY(0)}
-.gate-hint{margin-top:14px;font-size:11px;color:var(--text-hint)}
 @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}60%{transform:translateX(8px)}}
 
 /* ── TOAST ── */
@@ -303,18 +288,6 @@ textarea.form-input{resize:vertical;min-height:68px;line-height:1.5}
 </head>
 <body>
 
-<!-- ══ GATE ══ -->
-<div id="gate">
-  <div class="gate-box">
-    <div class="gate-logo">SA</div>
-    <div class="gate-title">Intranet SA13</div>
-    <div class="gate-sub">Syndicat des Architectes — Bouches-du-Rhône<br>Accès réservé aux membres du Conseil d'Administration</div>
-    <input type="password" id="gate-input" class="gate-input" placeholder="••••••••" autocomplete="current-password">
-    <div class="gate-err" id="gate-err"></div>
-    <button id="gate-btn" class="gate-btn">Accéder →</button>
-    <div class="gate-hint">Contactez le secrétariat pour obtenir le mot de passe.</div>
-  </div>
-</div>
 
 <!-- ══ LAYOUT ══ -->
 <div class="layout">
@@ -595,68 +568,11 @@ textarea.form-input{resize:vertical;min-height:68px;line-height:1.5}
 <!-- TOAST -->
 <div id="toast-container"></div>
 
-<!-- ══ GATE SCRIPT (autonome, tourne en premier) ══ -->
-<script>
-(function() {
-  var PASS  = 'SA13@2026';
-  var TOKEN = 'sa13-ca-2026';
-  var KEY   = 'sa13_auth';
-
-  function unlock() {
-    var g = document.getElementById('gate');
-    if (g) g.style.display = 'none';
-  }
-
-  function check() {
-    var inp = document.getElementById('gate-input');
-    var err = document.getElementById('gate-err');
-    var val = inp.value.trim();
-    if (val === PASS) {
-      try { sessionStorage.setItem(KEY, '1'); } catch(e) {}
-      unlock();
-    } else {
-      err.textContent = val === '' ? 'Saisissez le mot de passe.' : 'Mot de passe incorrect.';
-      inp.classList.add('error');
-      setTimeout(function() { inp.classList.remove('error'); }, 400);
-      inp.value = '';
-      inp.focus();
-    }
-  }
-
-  function initGate() {
-    // URL token bypass
-    var m = window.location.hash.match(/acces=([^&]+)/);
-    if (m && m[1] === TOKEN) {
-      try { sessionStorage.setItem(KEY, '1'); history.replaceState(null, '', location.pathname); } catch(e) {}
-      unlock();
-      return;
-    }
-    // Session existante
-    try { if (sessionStorage.getItem(KEY) === '1') { unlock(); return; } } catch(e) {}
-
-    // Brancher les écouteurs
-    var btn = document.getElementById('gate-btn');
-    var inp = document.getElementById('gate-input');
-    if (btn) btn.addEventListener('click', check);
-    if (inp) inp.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') { e.preventDefault(); check(); }
-    });
-    if (inp) inp.focus();
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initGate);
-  } else {
-    initGate();
-  }
-})();
-</script>
 
 <script>
 /* ═══════════════════════════════════════════════════════════
    CONFIG
 ═══════════════════════════════════════════════════════════ */
-// Le mot de passe est géré dans le script gate ci-dessus
 var LS_KEY = 'sa13_data_v2';
 
 /* ═══════════════════════════════════════════════════════════
@@ -1259,7 +1175,6 @@ function renderDashboard() {
 /* ═══════════════════════════════════════════════════════════
    AUTH
 ═══════════════════════════════════════════════════════════ */
-// Auth gérée par le script gate dédié ci-dessus
 
 /* ═══════════════════════════════════════════════════════════
    INIT
